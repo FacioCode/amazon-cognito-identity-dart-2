@@ -101,9 +101,8 @@ class CognitoUser {
 
     if (challengeName == 'CUSTOM_CHALLENGE') {
       _session = dataAuthenticate['Session'];
-      throw CognitoUserCustomChallengeException(
-          challengeName: challengeName,
-          challengeParameters: challengeParameters);
+      await cacheUserSession();
+      return _signInUserSession;
     }
 
     if (challengeName == 'DEVICE_SRP_AUTH') {
@@ -317,6 +316,23 @@ class CognitoUser {
     }
   }
 
+  void cacheUserSession() async {
+    final keyPrefix =
+        'CognitoIdentityServiceProvider.${pool.getClientId()}.$username';
+    final userSessionKey = '$keyPrefix.userSessionKey';
+    await storage.setItem(userSessionKey, _session);
+  }
+
+  void getCachedUserSession() async {
+    final keyPrefix =
+        'CognitoIdentityServiceProvider.${pool.getClientId()}.$username';
+    final userSessionKey = '$keyPrefix.userSessionKey';
+
+    if (await storage.getItem(userSessionKey) != null) {
+      _session = await storage.getItem(userSessionKey);
+    }
+  }
+
   /// This returns the user context data for advanced security feature.
   String getUserContextData() {
     return pool.getUserContextData(username);
@@ -459,8 +475,43 @@ class CognitoUser {
       return await _authenticateUserPlainUsernamePassword(authDetails);
     } else if (authenticationFlowType == 'USER_SRP_AUTH') {
       return await _authenticateUserDefaultAuth(authDetails);
+    } else if (authenticationFlowType == 'CUSTOM_AUTH') {
+      return await _authenticateUserCustomAuth(authDetails);
     }
     throw UnimplementedError('Authentication flow type is not supported.');
+  }
+
+  Future<CognitoUserSession> _authenticateUserCustomAuth(
+    AuthenticationDetails authDetails,
+  ) async {
+    final authenticationHelper = AuthenticationHelper(
+      pool.getUserPoolId().split('_')[1],
+    );
+
+    Map<String, String> authParameters = {};
+    if (_deviceKey != null) {
+      authParameters['DEVICE_KEY'] = _deviceKey;
+    }
+    authParameters['USERNAME'] = username;
+
+    final srpA = authenticationHelper.getLargeAValue();
+    authParameters['SRP_A'] = srpA.toRadixString(16);
+    authParameters['CHALLENGE_NAME'] = 'SRP_A'; // Verifies username
+
+    Map<String, dynamic> params = {
+      'AuthFlow': authenticationFlowType,
+      'ClientId': pool.getClientId(),
+      'AuthParameters': authParameters,
+      'ClientMetadata': authDetails.getValidationData(),
+    };
+
+    if (getUserContextData() != null) {
+      params['UserContextData'] = getUserContextData();
+    }
+
+    final authResult = await client.request('InitiateAuth', params);
+
+    return _authenticateUserInternal(authResult, authenticationHelper);
   }
 
   /// This is used for the user to signOut of the application and clear the cached tokens.
@@ -726,7 +777,7 @@ class CognitoUser {
     final authenticationHelper =
         AuthenticationHelper(pool.getUserPoolId().split('_')[1]);
 
-    getCachedDeviceKeyAndPassword();
+    await getCachedUserSession();
     if (_deviceKey != null) {
       challengeResponses['DEVICE_KEY'] = _deviceKey;
     }
