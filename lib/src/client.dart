@@ -5,18 +5,18 @@ import 'package:http/http.dart' as http;
 import 'cognito_client_exceptions.dart';
 
 class Client {
-  String _service;
-  String _userAgent;
-  String _region;
-  String endpoint;
-  http.Client _client;
+  String? _service;
+  String? _userAgent;
+  String? _region;
+  String? endpoint;
+  late http.Client _client;
 
   Client({
-    String endpoint,
-    String region,
+    String? endpoint,
+    String? region,
     String service = 'AWSCognitoIdentityProviderService',
-    http.Client client,
-    String userAgent = 'aws-amplify/0.0.x dart',
+    http.Client? client,
+    String? userAgent = 'aws-amplify/0.0.x dart',
   }) {
     _region = region;
     _service = service;
@@ -27,8 +27,8 @@ class Client {
 
   /// Makes requests on AWS API service provider
   dynamic request(String operation, Map<String, dynamic> params,
-      {String endpoint, String service}) async {
-    final endpointReq = endpoint ?? this.endpoint;
+      {String? endpoint, String? service}) async {
+    final endpointReq = endpoint ?? this.endpoint!;
     final targetService = service ?? _service;
     final body = json.encode(params);
 
@@ -42,7 +42,7 @@ class Client {
     try {
       response = await _client.post(
         Uri.parse(endpointReq),
-        headers: headersReq,
+        headers: headersReq as Map<String, String>?,
         body: body,
       );
     } catch (e) {
@@ -67,7 +67,7 @@ class Client {
       var errorType = 'UnknownError';
       for (final header in response.headers.keys) {
         if (header.toLowerCase() == 'x-amzn-errortype') {
-          errorType = response.headers[header].split(':')[0];
+          errorType = response.headers[header]!.split(':')[0];
           break;
         }
       }
@@ -79,8 +79,8 @@ class Client {
           statusCode: response.statusCode,
         );
       }
-      final String dataType = data['__type'];
-      final String dataCode = data['code'];
+      final String? dataType = data['__type'];
+      final String? dataCode = data['code'];
       final code = (dataType ?? dataCode ?? errorType).split('#').removeLast();
       throw CognitoClientException(
         data['message'] ?? 'Cognito client request error with unknown message',
