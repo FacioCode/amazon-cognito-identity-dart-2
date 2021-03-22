@@ -11,8 +11,7 @@ class CognitoUserPoolData {
   String? userSub;
   CognitoUserPoolData(this.user, {this.userConfirmed, this.userSub});
 
-  factory CognitoUserPoolData.fromData(
-      CognitoUser user, Map<String, dynamic> parsedJson) {
+  factory CognitoUserPoolData.fromData(CognitoUser user, Map<String, dynamic> parsedJson) {
     return CognitoUserPoolData(
       user,
       userConfirmed: parsedJson['UserConfirmed'] ?? false,
@@ -56,8 +55,7 @@ class CognitoUserPool {
       client = customClient;
     }
 
-    storage =
-        storage ?? (CognitoStorageHelper(CognitoMemoryStorage())).getStorage();
+    storage = storage ?? (CognitoStorageHelper(CognitoMemoryStorage())).getStorage();
   }
 
   String? getUserPoolId() {
@@ -73,15 +71,11 @@ class CognitoUserPool {
   }
 
   Future<CognitoUser?> getCurrentUser() async {
-    final lastUserKey =
-        'CognitoIdentityServiceProvider.$_clientId.LastAuthUser';
+    final lastUserKey = 'CognitoIdentityServiceProvider.$_clientId.LastAuthUser';
 
     final lastAuthUser = await storage!.getItem(lastUserKey);
     if (lastAuthUser != null) {
-      return CognitoUser(lastAuthUser, this,
-          storage: storage,
-          clientSecret: _clientSecret,
-          deviceName: _userAgent);
+      return CognitoUser(lastAuthUser, this, storage: storage, clientSecret: _clientSecret, deviceName: _userAgent);
     }
 
     return null;
@@ -91,6 +85,7 @@ class CognitoUserPool {
   /// This would be generated only when developer has included the JS used for collecting the
   /// data on their client. Please refer to documentation to know more about using AdvancedSecurity
   /// features
+  // ignore: todo
   /// TODO: not supported at the moment
   String? getUserContextData(String? username) {
     return null;
@@ -98,7 +93,7 @@ class CognitoUserPool {
 
   /// Registers the user in the specified user pool and creates a
   /// user name, password, and user attributes.
-  Future<CognitoUserPoolData> signUp(
+  Future<CognitoUserPoolData?> signUp(
     String username,
     String password, {
     List<AttributeArg>? userAttributes,
@@ -113,8 +108,7 @@ class CognitoUserPool {
     };
 
     if (_clientSecret != null) {
-      params['SecretHash'] = CognitoUser.calculateClientSecretHash(
-          username, _clientId!, _clientSecret!);
+      params['SecretHash'] = CognitoUser.calculateClientSecretHash(username, _clientId!, _clientSecret!);
     }
 
     final data = await client!.request('SignUp', params);
@@ -122,10 +116,7 @@ class CognitoUserPool {
       return null;
     }
     return CognitoUserPoolData.fromData(
-      CognitoUser(username, this,
-          storage: storage,
-          clientSecret: _clientSecret,
-          deviceName: _userAgent),
+      CognitoUser(username, this, storage: storage, clientSecret: _clientSecret, deviceName: _userAgent),
       data,
     );
   }

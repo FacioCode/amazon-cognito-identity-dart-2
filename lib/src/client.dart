@@ -26,29 +26,28 @@ class Client {
   }
 
   /// Makes requests on AWS API service provider
-  dynamic request(String operation, Map<String, dynamic> params,
-      {String? endpoint, String? service}) async {
+  dynamic request(String operation, Map<String, dynamic> params, {String? endpoint, String? service}) async {
     final endpointReq = endpoint ?? this.endpoint!;
     final targetService = service ?? _service;
     final body = json.encode(params);
 
-    final headersReq = {
+    final Map<String, String>? headersReq = {
       'Content-Type': 'application/x-amz-json-1.1',
       'X-Amz-Target': '$targetService.$operation',
-      'X-Amz-User-Agent': _userAgent,
+      'X-Amz-User-Agent': _userAgent ?? '',
     };
 
     http.Response response;
     try {
       response = await _client.post(
         Uri.parse(endpointReq),
-        headers: headersReq as Map<String, String>?,
+        headers: headersReq,
         body: body,
       );
     } catch (e) {
       if (e.toString().startsWith('SocketException:')) {
         throw CognitoClientException(
-          e.message,
+          e.toString(),
           code: 'NetworkError',
         );
       }
