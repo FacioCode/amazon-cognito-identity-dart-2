@@ -7,12 +7,11 @@ import 'cognito_user.dart';
 
 class CognitoUserPoolData {
   CognitoUser user;
-  bool userConfirmed;
-  String userSub;
+  bool? userConfirmed;
+  String? userSub;
   CognitoUserPoolData(this.user, {this.userConfirmed, this.userSub});
 
-  factory CognitoUserPoolData.fromData(
-      CognitoUser user, Map<String, dynamic> parsedJson) {
+  factory CognitoUserPoolData.fromData(CognitoUser user, Map<String, dynamic> parsedJson) {
     return CognitoUserPoolData(
       user,
       userConfirmed: parsedJson['UserConfirmed'] ?? false,
@@ -22,22 +21,22 @@ class CognitoUserPoolData {
 }
 
 class CognitoUserPool {
-  String _userPoolId;
-  String _clientId;
-  String _clientSecret;
-  String _region;
+  String? _userPoolId;
+  String? _clientId;
+  String? _clientSecret;
+  String? _region;
   bool advancedSecurityDataCollectionFlag;
-  Client client;
-  CognitoStorage storage;
-  String _userAgent;
+  Client? client;
+  CognitoStorage? storage;
+  String? _userAgent;
 
   CognitoUserPool(
     String userPoolId,
     String clientId, {
-    String clientSecret,
-    String endpoint,
-    Client customClient,
-    String customUserAgent,
+    String? clientSecret,
+    String? endpoint,
+    Client? customClient,
+    String? customUserAgent,
     this.storage,
     this.advancedSecurityDataCollectionFlag = true,
   }) {
@@ -56,32 +55,27 @@ class CognitoUserPool {
       client = customClient;
     }
 
-    storage =
-        storage ?? (CognitoStorageHelper(CognitoMemoryStorage())).getStorage();
+    storage = storage ?? (CognitoStorageHelper(CognitoMemoryStorage())).getStorage();
   }
 
-  String getUserPoolId() {
+  String? getUserPoolId() {
     return _userPoolId;
   }
 
-  String getClientId() {
+  String? getClientId() {
     return _clientId;
   }
 
-  String getRegion() {
+  String? getRegion() {
     return _region;
   }
 
-  Future<CognitoUser> getCurrentUser() async {
-    final lastUserKey =
-        'CognitoIdentityServiceProvider.$_clientId.LastAuthUser';
+  Future<CognitoUser?> getCurrentUser() async {
+    final lastUserKey = 'CognitoIdentityServiceProvider.$_clientId.LastAuthUser';
 
-    final lastAuthUser = await storage.getItem(lastUserKey);
+    final lastAuthUser = await storage!.getItem(lastUserKey);
     if (lastAuthUser != null) {
-      return CognitoUser(lastAuthUser, this,
-          storage: storage,
-          clientSecret: _clientSecret,
-          deviceName: _userAgent);
+      return CognitoUser(lastAuthUser, this, storage: storage, clientSecret: _clientSecret, deviceName: _userAgent);
     }
 
     return null;
@@ -91,18 +85,19 @@ class CognitoUserPool {
   /// This would be generated only when developer has included the JS used for collecting the
   /// data on their client. Please refer to documentation to know more about using AdvancedSecurity
   /// features
+  // ignore: todo
   /// TODO: not supported at the moment
-  String getUserContextData(String username) {
+  String? getUserContextData(String? username) {
     return null;
   }
 
   /// Registers the user in the specified user pool and creates a
   /// user name, password, and user attributes.
-  Future<CognitoUserPoolData> signUp(
+  Future<CognitoUserPoolData?> signUp(
     String username,
     String password, {
-    List<AttributeArg> userAttributes,
-    List<AttributeArg> validationData,
+    List<AttributeArg>? userAttributes,
+    List<AttributeArg>? validationData,
   }) async {
     final params = {
       'ClientId': _clientId,
@@ -113,19 +108,15 @@ class CognitoUserPool {
     };
 
     if (_clientSecret != null) {
-      params['SecretHash'] = CognitoUser.calculateClientSecretHash(
-          username, _clientId, _clientSecret);
+      params['SecretHash'] = CognitoUser.calculateClientSecretHash(username, _clientId!, _clientSecret!);
     }
 
-    final data = await client.request('SignUp', params);
+    final data = await client!.request('SignUp', params);
     if (data == null) {
       return null;
     }
     return CognitoUserPoolData.fromData(
-      CognitoUser(username, this,
-          storage: storage,
-          clientSecret: _clientSecret,
-          deviceName: _userAgent),
+      CognitoUser(username, this, storage: storage, clientSecret: _clientSecret, deviceName: _userAgent),
       data,
     );
   }
