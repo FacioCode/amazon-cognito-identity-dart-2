@@ -2,11 +2,37 @@
 
 An example Flutter project for [Amazon Cognito Identity Dart](https://github.com/jonsaw/amazon-cognito-identity-dart).
 
+## Reset to latest version of flutter
+
+```bash
+rm -rf ios; rm -rf android; rm -rf .dart_tool; rm -rf build; rm -rf .packages; rm -rf secure_counter_android.iml; rm -rf secure_counter.iml; rm -rf .flutter-plugins; rm -rf .flutter-plugins-dependencies; rm -rf .metadata; flutter create --org com.example --project-name secure_counter .
+
+cd ios; pod install; cd ..
+
+```
+
+## Create lib/secrets.dart (Do not commit it aka add to .gitignore)
+
+```dart
+// Store this file as lib/secrets.dart
+// Generate your own file using https://github.com/pal/simple-counter-server
+import 'package:amazon_cognito_identity_dart_2/cognito.dart';
+
+const cognitoUserPoolId = 'us-east-1_XXXXXXX';
+const cognitoClientId = 'XXXXXXXXXXXXXXX';
+const cognitoIdentityPoolId = 'us-east-1:XXXXX-XXXXX-XXXX-XXXX-XXXXXXXX';
+const awsRegion = 'us-east-1';
+const apiEndpoint = 'https://XXXXXXX.execute-api.us-east-1.amazonaws.com';
+
+final userPool = CognitoUserPool(cognitoUserPoolId, cognitoClientId);
+
+```
+
 <p align="center">
   <img title="Cognito Dart Demo screenshot" src="https://user-images.githubusercontent.com/1572333/39953217-77967bda-55d9-11e8-940c-90c34f870cb6.png" height="400px">
 </p>
 
-See [Example Secure Counter Server](https://github.com/jonsaw/example-secure-counter-server) for sample API implementation.
+For a sample implementation of a secure server using Cognito, see [Simple Counter server in Javascript](https://github.com/pal/simple-counter-server) or [Secure Counter Server in Go](https://github.com/jonsaw/example-secure-counter-server).
 
 ### Sign Up
 

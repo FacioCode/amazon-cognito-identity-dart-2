@@ -1,3 +1,77 @@
+## 1.0.0-nullsafety.3
+- Fixed: example
+- Fixed: Retrieving data from Storage as `FutureOr<String?>` breaks clients
+- Define `shared_preferences` as actual dependency, remove private file `.flutter-plugins-dependencies` and change code to work with latest `http`
+
+## 1.0.0-nullsafety.2
+- Fixed: http.post Uri argument
+
+## 1.0.0-nullsafety.1
+- Added optional validationData parameter for `sendCustomChallengeAnswer`
+- Fixed: http.post
+
+## 1.0.0-nullsafety.0
+- Initial null safety
+
+## 0.1.25+2
+- Added optional validationData parameter for `sendCustomChallengeAnswer`
+
+## 0.1.25+1
+- Example update: check for InvalidPasswordException in signup screen
+
+## 0.1.25
+- [Issue #69] Solving "type '_InternalLinkedHashMap<String, String>' is not a subtype of type 'String' of 'value'" bug when ParamsDecorator receives a Map<String, String>.
+
+## 0.1.24+2
+- [Issue #103] Set confirmed to true when email or phone_number is verified
+
+## 0.1.24+1
+- [Issue #88] Update example to latest version of Flutter for iOS, Android and Web. Uses AndroidX now which solves this issue
+- [Issue #81] Enable login for Flutter Web by upgrading shared_preferences dependency version
+- Separate example into individual files, for easier re-use / copy and paste
+- Add a lib/secrets.dart file to hold the aws secrets. That file is added to .gitignore
+- Add quick start instructions in readme for compiling example. Does not include how to setup resources in AWS, but that is a pre-requiste the example working.
+- Migrate from depricated RaisedButton to ElevatedButton in example
+
+## 0.1.24
+- [Issue #69] Adding await in the call to analyticsMetadataParamsDecorator in case some implementations need to include async modifier
+
+## 0.1.23
+- [Issue #69] Propagating analyticsMetadataParamsDecorator to CognitoUser from CognitoUserPool
+
+## 0.1.22
+- [Issue #69] Adding support for AnalyticsMetadata request parameter
+
+## 0.1.21
+- failed AWS request with specific character
+
+## 0.1.20
+- removed: `getLargeAValue` call on `AuthenticationHelper` initialization
+
+## 0.1.19
+- added: additional getters for CognitoJwtToken
+
+## 0.1.18
+- added: SecretHash to ConfirmSignUp/ResendConfirmationCode request parameters
+
+## 0.1.17
+- added: clear the cached clockDriftKey
+
+## 0.1.16
+- added: Using an app client secret with '_authenticateUserPlainUsernamePassword'
+
+## 0.1.15
+- fixed: CognitoUser.getCachedDeviceKeyAndPassword as a Future<void>
+- removed flutter_test dev dependency
+
+## 0.1.14
+- added: CognitoUser.getDeviceKey method
+- added documentation for client secret
+
+## 0.1.13
+- changed: CognitoUser.updateAttributes and CognitoUser.deleteAttributes return Future<bool>
+- added: CognitoUser.getMFAOptions method
+
 ## 0.1.12+3
 - fix: type list<dynamic> is not a subtype of type list<int>
 
