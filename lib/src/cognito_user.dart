@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
 
 import 'package:amazon_cognito_identity_dart_2/src/params_decorators.dart';
 import 'package:convert/convert.dart';
