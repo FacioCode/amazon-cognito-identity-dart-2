@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:amazon_cognito_identity_dart_2/src/params_decorators.dart';
 import 'package:convert/convert.dart';
@@ -307,20 +308,20 @@ class CognitoUser {
     }
   }
 
-  void cacheUserSession() async {
+  Future<void> cacheUserSession() async {
     final keyPrefix =
         'CognitoIdentityServiceProvider.${pool.getClientId()}.$username';
     final userSessionKey = '$keyPrefix.userSessionKey';
-    await storage.setItem(userSessionKey, _session);
+    await storage!.setItem(userSessionKey, _session);
   }
 
-  void getCachedUserSession() async {
+  Future<void> getCachedUserSession() async {
     final keyPrefix =
         'CognitoIdentityServiceProvider.${pool.getClientId()}.$username';
     final userSessionKey = '$keyPrefix.userSessionKey';
 
-    if (await storage.getItem(userSessionKey) != null) {
-      _session = await storage.getItem(userSessionKey);
+    if (await storage!.getItem(userSessionKey) != null) {
+      _session = await storage!.getItem(userSessionKey);
     }
   }
 
@@ -464,24 +465,24 @@ class CognitoUser {
     throw UnimplementedError('Authentication flow type is not supported.');
   }
 
-  Future<CognitoUserSession> _authenticateUserCustomAuth(
+  Future<CognitoUserSession?> _authenticateUserCustomAuth(
     AuthenticationDetails authDetails,
   ) async {
     final authenticationHelper = AuthenticationHelper(
-      pool.getUserPoolId().split('_')[1],
+      pool.getUserPoolId()!.split('_')[1],
     );
 
-    Map<String, String> authParameters = {};
+    var authParameters = <String, String?>{};
     if (_deviceKey != null) {
       authParameters['DEVICE_KEY'] = _deviceKey;
     }
     authParameters['USERNAME'] = username;
 
-    final srpA = authenticationHelper.getLargeAValue();
+    final srpA = authenticationHelper.getLargeAValue()!;
     authParameters['SRP_A'] = srpA.toRadixString(16);
     authParameters['CHALLENGE_NAME'] = 'SRP_A'; // Verifies username
 
-    Map<String, dynamic> params = {
+    var params = <String, dynamic>{
       'AuthFlow': authenticationFlowType,
       'ClientId': pool.getClientId(),
       'AuthParameters': authParameters,
@@ -492,7 +493,7 @@ class CognitoUser {
       params['UserContextData'] = getUserContextData();
     }
 
-    final authResult = await client.request('InitiateAuth', params);
+    final authResult = await client!.request('InitiateAuth', params);
 
     return _authenticateUserInternal(authResult, authenticationHelper);
   }

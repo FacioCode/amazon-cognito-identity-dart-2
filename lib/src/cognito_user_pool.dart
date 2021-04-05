@@ -97,6 +97,7 @@ class CognitoUserPool {
   /// This would be generated only when developer has included the JS used for collecting the
   /// data on their client. Please refer to documentation to know more about using AdvancedSecurity
   /// features
+  // ignore: todo
   /// TODO: not supported at the moment
   String? getUserContextData(String? username) {
     return null;
